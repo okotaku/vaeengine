@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  template:
+    build: ./
+    environment:
+      - PYTHONPATH=/workspace:$PYTHONPATH
+    container_name: template
+    ipc: host
+    tty: true
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
