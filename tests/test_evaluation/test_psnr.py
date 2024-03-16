@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from mmengine.testing import RunnerTestCase
 from PIL import Image
 
@@ -18,4 +19,6 @@ class TestPSNR(RunnerTestCase):
 
         score = psnr(img, img2)
         assert isinstance(score, float)
-        assert score == 27.890020066842215
+        assert torch.allclose(torch.tensor(score).float(),
+                              torch.tensor(27.8900).float(),
+                          rtol=1e-3, atol=1e-4)

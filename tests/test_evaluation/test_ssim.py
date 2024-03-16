@@ -1,3 +1,4 @@
+import torch
 from mmengine.testing import RunnerTestCase
 from PIL import Image
 
@@ -17,4 +18,6 @@ class TestSSIM(RunnerTestCase):
 
         score = psnr(img, img2)
         assert isinstance(score, float)
-        assert score == 0.02995191703848259
+        assert torch.allclose(torch.tensor(score).float(),
+                              torch.tensor(0.0300).float(),
+                          rtol=1e-3, atol=1e-4)

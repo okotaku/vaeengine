@@ -1,11 +1,15 @@
 import copy
+import os
 
+import pytest
 from mmengine.config import Config
 from mmengine.testing import RunnerTestCase
 
 from vaeengine.engine.hooks import MemoryFormatHook
 
 
+@pytest.mark.skipif("GITHUB_ACTION" in os.environ,
+                    reason="skip external api call during CI")
 class TestMemoryFormatHook(RunnerTestCase):
 
     def test_init(self) -> None:

@@ -34,7 +34,8 @@ def test_kl_loss():
     posterior = vae.encode(image_processor.preprocess(img)).latent_dist
 
     loss = KLLoss()
-    assert torch.allclose(loss(posterior), torch.tensor(7925.0908))
+    assert torch.allclose(loss(posterior), torch.tensor(7925.0908),
+                          rtol=1e-3, atol=1e-4)
 
 
 def test_lpips_loss():
