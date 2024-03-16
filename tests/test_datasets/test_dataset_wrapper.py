@@ -1,7 +1,7 @@
 
 import pytest
 
-from diffengine.datasets import ConcatDataset, HFDataset
+from vaeengine.datasets import ConcatDataset, HFDataset
 
 
 class TestConcatDataset:
@@ -31,5 +31,5 @@ class TestConcatDataset:
             len(self.dataset_a) + len(self.dataset_b))
 
     def test_getitem(self):
-        assert self.cat_datasets[0]["text"] == self.dataset_a[0]["text"]
-        assert self.cat_datasets[0]["text"] != self.dataset_b[0]["text"]
+        assert self.cat_datasets[0]["img"] == self.dataset_a[0]["img"]
+        assert self.cat_datasets[0]["img"] != self.dataset_b[0]["img"]

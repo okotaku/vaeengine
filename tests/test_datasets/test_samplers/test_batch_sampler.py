@@ -7,7 +7,7 @@ import torch
 from mmengine.dataset import DefaultSampler
 from torch.utils.data import Dataset
 
-from diffengine.datasets.samplers import AspectRatioBatchSampler
+from vaeengine.datasets.samplers import AspectRatioBatchSampler
 
 
 class DummyDataset(Dataset):

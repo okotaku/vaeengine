@@ -2,7 +2,7 @@
 	"dockerComposeFile": [
 		"../docker-compose.yml"
 	],
-	"service": "template",
+	"service": "vaeengine",
 	"workspaceFolder": "/workspace",
 	"postCreateCommand": "pre-commit install && gh auth login && gh extension install github/gh-copilot",
 	"customizations": {

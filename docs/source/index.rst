@@ -1,4 +1,4 @@
-Welcome to diffengine's documentation!
+Welcome to vaeengine's documentation!
 =======================================
 
 .. toctree::
@@ -16,28 +16,17 @@ Welcome to diffengine's documentation!
    user_guides/dataset_prepare.md
    user_guides/aspect_ratio_bucketing.md
 
-
-.. _RunGuides:
-.. toctree::
-   :maxdepth: 1
-   :caption: Run Guides
-
-   run_guides/run.md
-   run_guides/run_dreambooth.md
-   run_guides/run_lora.md
-   run_guides/run_controlnet.md
-   run_guides/run_inpaint.md
-
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
 
-   diffengine.datasets <autoapi/diffengine/datasets/index.rst>
-   diffengine.datasets.transforms <autoapi/diffengine/datasets/transforms/index.rst>
-   diffengine.datasets.samplers <autoapi/diffengine/datasets/samplers/index.rst>
-   diffengine.engine.hooks <autoapi/diffengine/engine/hooks/index.rst>
-   diffengine.models.losses <autoapi/diffengine/models/losses/index.rst>
-   diffengine.models.editors <autoapi/diffengine/models/editors/index.rst>
+   vaeengine.datasets <autoapi/vaeengine/datasets/index.rst>
+   vaeengine.datasets.transforms <autoapi/vaeengine/datasets/transforms/index.rst>
+   vaeengine.datasets.samplers <autoapi/vaeengine/datasets/samplers/index.rst>
+   vaeengine.engine.hooks <autoapi/vaeengine/engine/hooks/index.rst>
+   vaeengine.evaluation <autoapi/vaeengine/evaluation/index.rst>
+   vaeengine.models.losses <autoapi/vaeengine/models/losses/index.rst>
+   vaeengine.models.editors <autoapi/vaeengine/models/editors/index.rst>
 
 Indices and tables
 ==================
