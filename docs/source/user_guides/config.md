@@ -3,18 +3,17 @@
 The config system has a modular and inheritance design, and more details can be found in
 [mmengine docs: CONFIG](https://mmengine.readthedocs.io/en/latest/advanced_tutorials/config.html#a-pure-python-style-configuration-file-beta).
 
-Usually, we use python files as config file. All configuration files are placed under the [`configs`](https://github.com/okotaku/diffengine/tree/main/diffengine/configs) folder, and the directory structure is as follows:
+Usually, we use python files as config file. All configuration files are placed under the [`configs`](https://github.com/okotaku/vaeengine/tree/main/vaeengine/configs) folder, and the directory structure is as follows:
 
 ```text
-DiffEngine/diffengine/
+vaeengine/vaeengine/
     ├── configs/
     │   ├── _base_/                       # primitive configuration folder
     │   │   ├── datasets/                      # primitive datasets
     │   │   ├── models/                        # primitive models
     │   │   ├── schedules/                     # primitive schedules
     │   │   └── default_runtime.py             # primitive runtime setting
-    │   ├── stable_diffusion/             # Stable Diffusion Algorithms Folder
-    │   ├── stable_diffusion_xl/          # Stable Diffusion XL Algorithms Folder
+    │   ├── autoencoderkl/             # Stable Diffusion Algorithms Folder
     │   ├── ...
     └── ...
 ```
@@ -23,23 +22,23 @@ DiffEngine/diffengine/
 
 There are four kinds of basic component files in the `configs/_base_` folders, namely：
 
-- [models](https://github.com/okotaku/diffengine/tree/main/diffengine/configs/_base_/models)
-- [datasets](https://github.com/okotaku/diffengine/tree/main/diffengine/configs/_base_/datasets)
-- [schedules](https://github.com/okotaku/diffengine/tree/main/diffengine/configs/_base_/schedules)
-- [runtime](https://github.com/okotaku/diffengine/blob/main/diffengine/configs/_base_/default_runtime.py)
+- [models](https://github.com/okotaku/vaeengine/tree/main/vaeengine/configs/_base_/models)
+- [datasets](https://github.com/okotaku/vaeengine/tree/main/vaeengine/configs/_base_/datasets)
+- [schedules](https://github.com/okotaku/vaeengine/tree/main/vaeengine/configs/_base_/schedules)
+- [runtime](https://github.com/okotaku/vaeengine/blob/main/vaeengine/configs/_base_/default_runtime.py)
 
 We call all the config files in the `_base_` folder as _primitive_ config files. You can easily build your training config file by inheriting some primitive config files.
 
-For easy understanding, we use [stable_diffusion_v15_pokemon_blip config file](https://github.com/okotaku/diffengine/blob/main/diffengine/configs/stable_diffusion/stable_diffusion_v15_pokemon_blip.py) as an example and comment on each line.
+For easy understanding, we use [autoencoderkl_sdv15_pokemon config file](https://github.com/okotaku/vaeengine/blob/main/vaeengine/configs/autoencoderkl/autoencoderkl_sdv15_pokemon.py) as an example and comment on each line.
 
 ```python
 from mmengine.config import read_base
 
 with read_base():  # This config file will inherit all config files in `_base_`.
-    from .._base_.datasets.pokemon_blip import *           # model settings
+    from .._base_.datasets.pokemon_baseline import *           # model settings
     from .._base_.default_runtime import *                 # data settings
-    from .._base_.models.stable_diffusion_v15 import *     # schedule settings
-    from .._base_.schedules.stable_diffusion_50e import *  # runtime settings
+    from .._base_.models.autoencoderkl_sdv15 import *     # schedule settings
+    from .._base_.schedules.autoencoder_50e_baseline import *  # runtime settings
 ```
 
 We will explain the four primitive config files separately below.
@@ -51,37 +50,19 @@ This primitive config file includes a dict variable `model`, which mainly includ
 Usually, we use the **`type` field** to specify the class of the component and use other fields to pass
 the initialization arguments of the class.
 
-Following is the model primitive config of the stable_diffusion_v15 config file in [`configs/_base_/models/stable_diffusion_v15.py`](https://github.com/okotaku/diffengine/blob/main/diffengine/configs/_base_/models/stable_diffusion_v15.py):
+Following is the model primitive config of the autoencoderkl_sdv15 config file in [`configs/_base_/models/autoencoderkl_sdv15.py`](https://github.com/okotaku/vaeengine/blob/main/vaeengine/configs/_base_/models/autoencoderkl_sdv15.py):
 
 ```python
-from diffusers import AutoencoderKL, DDPMScheduler, UNet2DConditionModel
-from transformers import CLIPTextModel, CLIPTokenizer
+from diffusers import AutoencoderKL
 
-from diffengine.models.editors import StableDiffusion
+from vaeengine.models.editors import AutoencoderKLModel
 
-base_model = "runwayml/stable-diffusion-v1-5"  # pretrained model name of stable diffusion
-model = dict(type=StableDiffusion,  # The type of the main model.
-             model=base_model,
-             tokenizer=dict(  # tokenizer settings
-                type=CLIPTokenizer.from_pretrained,
-                pretrained_model_name_or_path=base_model,
-                subfolder="tokenizer"),
-             scheduler=dict(  # scheduler settings
-                type=DDPMScheduler.from_pretrained,
-                pretrained_model_name_or_path=base_model,
-                subfolder="scheduler"),
-             text_encoder=dict(  # text encoder settings
-                type=CLIPTextModel.from_pretrained,
-                pretrained_model_name_or_path=base_model,
-                subfolder="text_encoder"),
-             vae=dict(  # vae settings
-                type=AutoencoderKL.from_pretrained,
-                pretrained_model_name_or_path=base_model,
-                subfolder="vae"),
-             unet=dict(  # unet settings
-                type=UNet2DConditionModel.from_pretrained,
-                pretrained_model_name_or_path=base_model,
-                subfolder="unet"))
+model = dict(
+   type=AutoencoderKLModel,  # The type of the main model.
+   vae=dict(  # vae settings
+      type=AutoencoderKL.from_pretrained,
+      pretrained_model_name_or_path="runwayml/stable-diffusion-v1-5",
+      subfolder="vae"))
 
 ```
 
@@ -89,20 +70,20 @@ model = dict(type=StableDiffusion,  # The type of the main model.
 
 This primitive config file includes information to construct the dataloader:
 
-Following is the data primitive config of the stable_diffusion_v15 config in [`configs/_base_/datasets/pokemon_blip.py`]https://github.com/okotaku/diffengine/blob/main/diffengine/configs/_base_/datasets/pokemon_blip.py)：
+Following is the data primitive config of the pokemon_baseline config in [`configs/_base_/datasets/pokemon_baseline.py`]https://github.com/okotaku/vaeengine/blob/main/vaeengine/configs/_base_/datasets/pokemon_baseline.py)：
 
 ```python
 import torchvision
 from mmengine.dataset import DefaultSampler
 
-from diffengine.datasets import HFDataset
-from diffengine.datasets.transforms import (
+from vaeengine.datasets import HFDataset
+from vaeengine.datasets.transforms import (
     PackInputs,
     RandomCrop,
     RandomHorizontalFlip,
     TorchVisonTransformWrapper,
 )
-from diffengine.engine.hooks import CheckpointHook, VisualizationHook
+from vaeengine.engine.hooks import CheckpointHook, VisualizationHook
 
 train_pipeline = [  # augmentation settings
     dict(type=TorchVisonTransformWrapper,
@@ -132,7 +113,7 @@ test_dataloader = val_dataloader
 test_evaluator = val_evaluator
 
 custom_hooks = [
-    dict(type=VisualizationHook, prompt=['yoda pokemon'] * 4),  # validation visualize prompt
+    dict(type=InferHook, dataset="lambdalabs/pokemon-blip-captions"),  # visualize and eval
     dict(type=CheckpointHook)
 ]
 ```
@@ -142,7 +123,7 @@ custom_hooks = [
 This primitive config file mainly contains training strategy settings and the settings of training, val and
 test loops:
 
-Following is the schedule primitive config of the stable_diffusion_v15 config in [`configs/_base_/schedules/stable_diffusion_50e.py`](https://github.com/okotaku/diffengine/blob/main/diffengine/configs/_base_/schedules/stable_diffusion_50e.py)：
+Following is the schedule primitive config of the autoencoder_50e_baseline config in [`configs/_base_/schedules/autoencoder_50e_baseline.py`](https://github.com/okotaku/vaeengine/blob/main/vaeengine/configs/_base_/schedules/autoencoder_50e_baseline.py)：
 
 
 ```python
@@ -174,10 +155,10 @@ default_hooks = dict(
 
 This part mainly includes saving the checkpoint strategy, log configuration, training parameters, breakpoint weight path, working directory, etc.
 
-Here is the runtime primitive config file ['configs/_base_/default_runtime.py'](https://github.com/okotaku/diffengine/blob/main/diffengine/configs/_base_/default_runtime.py) file used by almost all configs:
+Here is the runtime primitive config file ['configs/_base_/default_runtime.py'](https://github.com/okotaku/vaeengine/blob/main/vaeengine/configs/_base_/default_runtime.py) file used by almost all configs:
 
 ```
-default_scope = 'diffengine'
+default_scope = 'vaeengine'
 
 # configure environment
 env_cfg = dict(
@@ -202,17 +183,17 @@ For easy understanding, we recommend contributors inherit from existing config f
 inheritance. Usually, for all config files, we recommend the maximum inheritance level is 3.
 
 For example, if your config file is based on ResNet with some other modification, you can first inherit the
-basic stable_diffusion_v15_pokemon_blip structure, dataset and other training settings by specifying `_base_ ='./stable_diffusion_v15_pokemon_blip.py'`
+basic autoencoderkl_sdv15_pokemon structure, dataset and other training settings by specifying `_base_ ='./autoencoderkl_sdv15_pokemon.py'`
 (The path relative to your config file), and then modify the necessary parameters in the config file. A more
-specific example, now we want to use almost all configs in `configs/stable_diffusion/stable_diffusion_v15_pokemon_blip.py`, but changing the number of training epochs from 50 to 300, modify pretrained model, modify
+specific example, now we want to use almost all configs in `configs/autoencoderkl/autoencoderkl_sdv15_pokemon.py`, but changing the number of training epochs from 50 to 300, modify pretrained model, modify
 the learning rate schedule, and modify the dataset path, you can create a new config file
-`configs/stable_diffusion/stable_diffusion_v15_pokemon_blip-300e.py` with content as below:
+`configs/autoencoderkl/autoencoderkl_sdv15_pokemon-300e.py` with content as below:
 
 ```python
 from mmengine.config import read_base
 
 with read_base():  # This config file will inherit all config files in `_base_`.
-    from diffengine.configs.stable_diffusion.stable_diffusion_v15_pokemon_blip import * 
+    from vaeengine.configs.autoencoderkl.autoencoderkl_sdv15_pokemon import * 
 
 # trains more epochs
 train_cfg.update(max_epochs=300)  # Train for 300 epochs

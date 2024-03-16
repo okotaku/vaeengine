@@ -11,7 +11,7 @@ from mmengine.utils import digit_version
 from PIL import Image
 from torchvision import transforms
 
-from diffengine.datasets import (
+from vaeengine.datasets import (
     CenterCrop,
     MultiAspectRatioResizeCenterCrop,
     RandomCrop,

@@ -6,7 +6,7 @@
 
 # -- Path setup --------------------------------------------------------------
 
-# If extensions (or diffengine to document with autodoc) are in another directory,
+# If extensions (or vaeengine to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'diffengine'
-copyright = '2023, diffengine'
-author = 'diffengine Contributors'
+project = 'vaeengine'
+copyright = '2023, vaeengine'
+author = 'vaeengine Contributors'
 
-__version__ = load_version('diffengine')
+__version__ = load_version('vaeengine')
 # The short X.Y version
 version = __version__
 # The full version, including alpha/beta/rc tags
@@ -52,9 +52,9 @@ autodoc_typehints = 'description'
 myst_heading_anchors = 4
 myst_enable_extensions = ['colon_fence']
 autoapi_type = 'python'
-autoapi_dirs = ['../../diffengine']
+autoapi_dirs = ['../../vaeengine']
 autoapi_add_toctree_entry = False
-autoapi_template_dir = '_templates'
+autoapi_vaeengine_dir = '_templates'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

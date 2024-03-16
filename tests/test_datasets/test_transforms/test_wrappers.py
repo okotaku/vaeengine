@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from mmengine.registry import TRANSFORMS
 
-from diffengine.datasets import RandomChoice
-from diffengine.datasets.transforms.base import BaseTransform
+from vaeengine.datasets import RandomChoice
+from vaeengine.datasets.transforms.base import BaseTransform
 
 
 class AddToValue(BaseTransform):

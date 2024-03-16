@@ -20,7 +20,7 @@ jobs:
       - name: Check docstring coverage
         run: |
           pip install interrogate
-          interrogate -v --ignore-init-method --ignore-module --ignore-nested-functions --ignore-regex "__repr__" --fail-under 50 diffengine
+          interrogate -v --ignore-init-method --ignore-module --ignore-nested-functions --ignore-regex "__repr__" --fail-under 50 vaeengine
 
   build:
     runs-on: ubuntu-22.04
@@ -39,7 +39,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y ffmpeg libsm6 libxext6 git ninja-build libglib2.0-0 libxrender-dev libc6 libc6-dev
-      - name: Install diffengine dependencies
+      - name: Install vaeengine dependencies
         run: |
           pip install setuptools
       - name: Build and install
@@ -48,6 +48,6 @@ jobs:
         run: pip install git+https://github.com/huggingface/diffusers.git
       - name: Run unittests and generate coverage report
         run: |
-          coverage run --branch --source=diffengine -m pytest tests/
+          coverage run --branch --source=vaeengine -m pytest tests/
           coverage xml
           coverage report -m

@@ -49,7 +49,6 @@ repos:
         exclude: |-
           (?x)(
               ^docs
-              | ^diffengine/configs
+              | ^vaeengine/configs
               | ^projects
-              | ^diffengine/patches
           )
