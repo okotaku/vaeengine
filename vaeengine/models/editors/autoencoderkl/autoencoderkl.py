@@ -32,13 +32,14 @@ class AutoencoderKLModel(BaseModel):
         loss (dict): Config of loss. Defaults to
             ``dict(type='L2Loss', loss_weight=1.0)``.
         kl_loss (dict): Config of kl_loss. Defaults to None.
-        lpips_loss (dict): Config of lpips_loss. Defaults to
-            ``dict(type='LPIPSLoss', loss_weight=1e-1)``.
+        lpips_loss (dict): Config of lpips_loss. Defaults to None.
         data_preprocessor (dict, optional): The pre-process config of
             :class:`DataPreprocessor`.
         weight_dtype (str): The weight dtype. Choose from "fp32", "fp16" or
             "bf16".  Defaults to 'fp32'.
         freeze_encoder (bool): Whether to freeze the encoder. Defaults to True.
+        sample_posterior (bool): Whether to sample from the posterior.
+            Defaults to False.
         gradient_checkpointing (bool): Whether to use gradient checkpointing.
             Defaults to False.
 
@@ -54,16 +55,16 @@ class AutoencoderKLModel(BaseModel):
         weight_dtype: str = "fp32",
         *,
         freeze_encoder: bool = True,
+        sample_posterior: bool = False,
         gradient_checkpointing: bool = False,
     ) -> None:
         if data_preprocessor is None:
             data_preprocessor = {"type": DataPreprocessor}
         if loss is None:
             loss = {}
-        if lpips_loss is None:
-            lpips_loss = {}
         super().__init__(data_preprocessor=data_preprocessor)
         self.weight_dtype = weight_dtype_dict[weight_dtype]
+        self.sample_posterior = sample_posterior
 
         if not isinstance(loss, nn.Module):
             loss = MODELS.build(
@@ -77,7 +78,7 @@ class AutoencoderKLModel(BaseModel):
                 default_args={"type": KLLoss, "loss_weight": 1e-6})
         self.kl_loss_module: nn.Module | None = kl_loss
 
-        if not isinstance(lpips_loss, nn.Module):
+        if not isinstance(lpips_loss, nn.Module) and lpips_loss is not None:
             lpips_loss = MODELS.build(
                 lpips_loss,
                 default_args={"type": LPIPSLoss, "loss_weight": 1e-1})
@@ -186,10 +187,11 @@ class AutoencoderKLModel(BaseModel):
         # calculate loss in FP32
         loss = self.loss_module(
             model_pred.float(), gt.float())
-        lpips_loss = self.lpips_loss_module(
-            model_pred.float(), gt.float())
         loss_dict["mse_loss"] = loss
-        loss_dict["lpips_loss"] = lpips_loss
+        if self.lpips_loss_module is not None:
+            lpips_loss = self.lpips_loss_module(
+                model_pred.float(), gt.float())
+            loss_dict["lpips_loss"] = lpips_loss
         if self.kl_loss_module is not None:
             kl_loss = self.kl_loss_module(posterior)
             loss_dict["kl_loss"] = kl_loss
@@ -216,7 +218,7 @@ class AutoencoderKLModel(BaseModel):
         """
         assert mode == "loss"
         posterior = self.vae.encode(inputs["img"].to(self.weight_dtype)).latent_dist
-        z = posterior.mode()
+        z = posterior.sample() if self.sample_posterior else posterior.mode()
         model_pred = self.vae.decode(z).sample
 
         return self.loss(model_pred, posterior, inputs["img"])

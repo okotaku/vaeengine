@@ -29,6 +29,7 @@ class LPIPSLoss(BaseLoss):
         self._loss_name = loss_name
 
         self.lpips = lpips.LPIPS(net="alex")
+        self.requires_grad_(requires_grad=False)
 
     def forward(self,
                 pred: torch.Tensor,
@@ -45,4 +46,4 @@ class LPIPSLoss(BaseLoss):
             torch.Tensor: loss
 
         """
-        return self.lpips(pred, gt).mean() * self.loss_weight
+        return self.lpips(pred.clamp(-1, 1), gt).mean() * self.loss_weight
