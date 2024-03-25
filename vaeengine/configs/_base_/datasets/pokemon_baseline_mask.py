@@ -3,13 +3,13 @@ from mmengine.dataset import DefaultSampler
 
 from vaeengine.datasets import HFDataset
 from vaeengine.datasets.transforms import (
+    DumpImage,
     LoadMask,
     MaskToTensor,
     PackInputs,
     RandomChoice,
     RandomCrop,
     RandomHorizontalFlip,
-    RandomTextDrop,
     TorchVisonTransformWrapper,
 )
 from vaeengine.engine.hooks import CheckpointHook, InferHook
@@ -74,17 +74,18 @@ train_pipeline = [
     dict(type=TorchVisonTransformWrapper,
          transform=torchvision.transforms.ToTensor),
     dict(type=MaskToTensor),
+    dict(type=DumpImage, max_imgs=10, dump_dir="work_dirs/dump"),
     dict(type=TorchVisonTransformWrapper,
          transform=torchvision.transforms.Normalize, mean=[0.5], std=[0.5]),
-    dict(type=RandomTextDrop),
-    dict(type=PackInputs),
+    dict(type=PackInputs,
+        input_keys=["img", "mask"]),
 ]
 train_dataloader = dict(
-    batch_size=4,
+    batch_size=2,
     num_workers=4,
     dataset=dict(
         type=HFDataset,
-        dataset="lambdalabs/pokemon-blip-captions",
+        dataset="diffusers/pokemon-gpt4-captions",
         pipeline=train_pipeline),
     sampler=dict(type=DefaultSampler, shuffle=True),
 )
@@ -95,6 +96,6 @@ test_dataloader = val_dataloader
 test_evaluator = val_evaluator
 
 custom_hooks = [
-    dict(type=InferHook, dataset="lambdalabs/pokemon-blip-captions"),
+    dict(type=InferHook, dataset="diffusers/pokemon-gpt4-captions"),
     dict(type=CheckpointHook),
 ]
