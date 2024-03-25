@@ -30,7 +30,7 @@ prompt = 'A yoda pokemon'
 vae = AutoencoderKL.from_pretrained(
     checkpoint, subfolder="vae", torch_dtype=torch.float16)
 pipe = DiffusionPipeline.from_pretrained(
-    'runwayml/stable-diffusion-v1-5', torch_dtype=torch.float16)
+    'runwayml/stable-diffusion-v1-5', vae=vae, torch_dtype=torch.float16)
 pipe.to('cuda')
 
 image = pipe(

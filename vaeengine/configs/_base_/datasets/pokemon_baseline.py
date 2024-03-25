@@ -6,6 +6,7 @@ from vaeengine.datasets.transforms import (
     PackInputs,
     RandomCrop,
     RandomHorizontalFlip,
+    RandomTextDrop,
     TorchVisonTransformWrapper,
 )
 from vaeengine.engine.hooks import CheckpointHook, InferHook
@@ -20,6 +21,7 @@ train_pipeline = [
          transform=torchvision.transforms.ToTensor),
     dict(type=TorchVisonTransformWrapper,
          transform=torchvision.transforms.Normalize, mean=[0.5], std=[0.5]),
+    dict(type=RandomTextDrop),
     dict(type=PackInputs),
 ]
 train_dataloader = dict(
