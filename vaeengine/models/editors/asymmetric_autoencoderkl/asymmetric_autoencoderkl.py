@@ -80,14 +80,14 @@ class AsymmetricAutoencoderKLModel(AutoencoderKLModel):
                 f"work_dirs/masks/mask_{i}.png").convert("L").resize(
                 (width, height), Image.BILINEAR)
             mask = np.array(mask) / 255
-            mask = torch.Tensor(mask).unsqueeze(0).permute(
-                2, 0, 1).to(self.weight_dtype).to(self.device)
+            mask = torch.Tensor(mask).unsqueeze(0).unsqueeze(0).to(
+                self.weight_dtype).to(self.device)
             pixel_values = image_processor.preprocess(
                 pil_img).to(self.weight_dtype).to(self.device)
 
             latents = self.vae.encode(pixel_values).latent_dist.sample()
-            image = self.vae.decode(latents, pixel_values,
-                                    mask, return_dict=False)[0]
+            image = self.vae.decode(latents, image=pixel_values,
+                                    mask=mask, return_dict=False)[0]
             image = image_processor.postprocess(image.detach(), output_type="pil")[0]
             ssim_scores.append(self.ssim(image, pil_img))
             psnr_scores.append(self.psnr(image, pil_img))
@@ -122,8 +122,8 @@ class AsymmetricAutoencoderKLModel(AutoencoderKLModel):
         posterior = self.vae.encode(inputs["img"].to(self.weight_dtype)).latent_dist
         z = posterior.sample() if self.sample_posterior else posterior.mode()
         model_pred = self.vae.decode(z,
-                                     inputs["img"].to(self.weight_dtype),
-                                     inputs["mask"].to(self.weight_dtype),
+                                     image=inputs["img"].to(self.weight_dtype),
+                                     mask=inputs["mask"].to(self.weight_dtype),
                                      ).sample
 
         return self.loss(model_pred, posterior, inputs["img"])
