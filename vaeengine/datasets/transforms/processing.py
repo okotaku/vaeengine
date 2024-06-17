@@ -382,3 +382,37 @@ class RandomHorizontalFlip(BaseTransform):
         if "crop_top_left" in results:
             results["crop_top_left"] = crop_top_left
         return results
+
+
+class ResizeIfNeeded:
+    """ResizeIfNeeded."""
+
+    def __init__(self,
+                 *args,
+                 size: int,
+                 keys: list[str] | None = None,
+                 **kwargs) -> None:
+        if keys is None:
+            keys = ["img"]
+        self.keys = keys
+        self.size = size
+        if "interpolation" in kwargs and isinstance(kwargs["interpolation"],
+                                                    str):
+            kwargs["interpolation"] = _interpolation_modes_from_str(
+                kwargs["interpolation"])
+        if "dtype" in kwargs and isinstance(kwargs["dtype"], str):
+            kwargs["dtype"] = _str_to_torch_dtype(kwargs["dtype"])
+        self.t = torchvision.transforms.Resize(*args, size=size, **kwargs)
+
+    def __call__(self, results: dict) -> dict:
+        """Call transform."""
+        for k in self.keys:
+            if not isinstance(results[k], list):
+                if min(results[k].width, results[k].height) < self.size:
+                    results[k] = self.t(results[k])
+            else:
+                results[k] = [
+                    self.t(img) if min(
+                        img.width, img.height,
+                        ) < self.size else img for img in results[k]]
+        return results

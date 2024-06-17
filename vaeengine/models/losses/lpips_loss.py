@@ -10,6 +10,7 @@ class LPIPSLoss(BaseLoss):
 
     Args:
     ----
+        net (str): The network to use. Defaults to 'alex'.
         loss_weight (float, optional): Weight of this loss item.
             Defaults to ``1.``.
         reduction: (str): The reduction method for the loss.
@@ -21,6 +22,7 @@ class LPIPSLoss(BaseLoss):
     """
 
     def __init__(self,
+                 net: str = "alex",
                  loss_weight: float = 1.0,
                  loss_name: str = "lpips") -> None:
 
@@ -28,7 +30,7 @@ class LPIPSLoss(BaseLoss):
         self.loss_weight = loss_weight
         self._loss_name = loss_name
 
-        self.lpips = lpips.LPIPS(net="alex")
+        self.lpips = lpips.LPIPS(net=net)
         self.requires_grad_(requires_grad=False)
 
     def forward(self,
